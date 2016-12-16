@@ -1,5 +1,3 @@
-% NOTE: This was taken from https://github.com/blandry/crazyflie-tools/blob/master/matlab/CrazyflieModel.m
-
 classdef CrazyflieModel < DrakeSystem
   
   properties

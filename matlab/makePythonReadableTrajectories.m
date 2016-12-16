@@ -20,7 +20,7 @@ for file_ind=1:length(unreadable_files)
         python_readable_traj.xtraj{idx} = ideal_traj.xtraj.eval(idx);
         python_readable_traj.utraj{idx} = ideal_traj.utraj.eval(idx);
     end
-
+    
     % save the readable trajectory
     save(readable_traj_path, 'python_readable_traj');
 

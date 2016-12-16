@@ -1,5 +1,5 @@
 classdef RoadmapBuilder
-
+    
     properties(Constant)
 
         min_pitch = -1
@@ -12,7 +12,7 @@ classdef RoadmapBuilder
         
         num_u_dimensions = 7
     end
-
+    
     properties
         runner = CrazyflieRunner()
         max_traj = CrazyflieModel().nominal_thrust
@@ -23,7 +23,7 @@ classdef RoadmapBuilder
         function [pitch, roll, u0] = generate_random_inputs(obj)
             pitch = obj.min_pitch + rand(1) * (obj.max_pitch - obj.min_pitch);
             roll = obj.min_roll + rand(1) * (obj.max_roll - obj.min_roll);
-
+            
             % initialize utraj in each dimension
             u0 = zeros(obj.num_u_dimensions, 1);
             for dim=1:obj.num_u_dimensions
@@ -50,22 +50,9 @@ classdef RoadmapBuilder
             ideal_traj.utraj = utraj;
 
             % construct the file path to save the trajectory
-            file_extension = strcat(num2str(pitch), '%', num2str(roll), '%', u0_str, '.mat');
-            matlab_file_path = strcat('solved_trajectories/', file_extension);
+            file_path = strcat('solved_trajectories/', num2str(pitch), '%', num2str(roll), '%', u0_str, '.mat');
 
-            % save the matlab trajectory
-            save(matlab_file_path, 'ideal_traj');
-
-            % also construct a python readable version of the trajectory
-            python_readable_traj = struct('xtraj', [], 'utraj', []);
-            for idx=1:ideal_traj.xtraj.length
-                python_readable_traj.xtraj{idx} = ideal_traj.xtraj.eval(idx);
-                python_readable_traj.utraj{idx} = ideal_traj.utraj.eval(idx);
-            end
-
-            % save the readable trajectory
-            python_file_path = strcat('python_readable_trajectories/', file_extension);
-            save(python_file_path, 'python_readable_traj');
+            save(file_path, 'ideal_traj');
         end
 
         % helper method to get the optimal trajectory for configuration
