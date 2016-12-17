@@ -14,4 +14,7 @@ function xtraj = simulatePitchAndRoll(pitch, roll)
 
     % simulate our solution on the initial state
     xtraj = queryManager.get_simulated_xtraj(initialStateVector);
+    
+    % visualize the trajectory the quad will take
+    queryManager.visualizeTrajectory(xtraj);
 end

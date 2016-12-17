@@ -14,6 +14,8 @@ class Command(BaseCommand):
     MIN_BENCHMARK_ROLL = 0
     MAX_BENCHMARK_ROLL = 1
 
+    IDEAL_DIFFERENTIAL = decimal.Decimal(.01)
+
     def add_arguments(self, parser):
         """
         Accept the pitch and roll from the command line
@@ -33,7 +35,7 @@ class Command(BaseCommand):
 
         parser.add_argument(
             '--ideal_min_roll_differential',
-            default=decimal.Decimal(.05),
+            default=decimal.Decimal(.01),
             type=decimal.Decimal)
 
         parser.add_argument(
@@ -56,7 +58,8 @@ class Command(BaseCommand):
             default=1000,
             type=int)
 
-    def get_match_score(self, trajectory, pitch, roll):
+    @classmethod
+    def get_match_score(cls, trajectory, pitch, roll):
         """
         Takes in a trajectory and returns how close it
         is to the inputted pitch and roll
@@ -66,18 +69,23 @@ class Command(BaseCommand):
 
         return pow(pitch_differential, 2) + pow(roll_differential, 2)
 
-    def find_closest_trajectory(self, **kwargs):
+    @classmethod
+    def find_closest_trajectory(cls, **kwargs):
         """
         Finds the file name associated with the
         closest trajectory
         """
         # if we can find an approximation that works to two
         # decimal places, just return that
-        ideal_min_pitch = kwargs["pitch"] - kwargs["ideal_min_pitch_differential"]
-        ideal_max_pitch = kwargs["pitch"] + kwargs["ideal_min_pitch_differential"]
+        ideal_min_pitch = kwargs["pitch"] - \
+            kwargs.get("ideal_min_pitch_differential", cls.IDEAL_DIFFERENTIAL)
+        ideal_max_pitch = kwargs["pitch"] + \
+            kwargs.get("ideal_min_pitch_differential", cls.IDEAL_DIFFERENTIAL)
 
-        ideal_min_roll = kwargs["roll"] - kwargs["ideal_min_roll_differential"]
-        ideal_max_roll = kwargs["roll"] + kwargs["ideal_min_roll_differential"]
+        ideal_min_roll = kwargs["roll"] - \
+            kwargs.get("ideal_min_roll_differential", cls.IDEAL_DIFFERENTIAL)
+        ideal_max_roll = kwargs["roll"] + \
+            kwargs.get("ideal_min_roll_differential", cls.IDEAL_DIFFERENTIAL)
 
         # find trajectories that we are good with even if they aren't the absolute
         # best
@@ -92,7 +100,7 @@ class Command(BaseCommand):
         # if we found something in the ideal trajectory, just return that!
         if ideal_trajectory:
             best_trajectory = ideal_trajectory
-            best_match_score = self.get_match_score(
+            best_match_score = cls.get_match_score(
                 best_trajectory, kwargs["pitch"], kwargs["roll"])
 
         # otherwise, we expand our filter and include more results
@@ -120,7 +128,7 @@ class Command(BaseCommand):
             best_match_score = float("inf")
 
             for trajectory in candidate_trajectories:
-                match_score = self.get_match_score(
+                match_score = cls.get_match_score(
                     trajectory, kwargs["pitch"], kwargs["roll"])
 
                 if match_score < best_match_score:

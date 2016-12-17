@@ -2,10 +2,12 @@ classdef LQRSimulator
 
     properties(Constant)
         % initialize Q and Qf to the same values determined by Landry
-        Q = diag([300 300 300 2.5 2.5 300 .001 .001 .001 .001 .001 5])
-        Qf = diag([300 300 300 2.5 2.5 300 .001 .001 .001 .001 .001 5])
+        %Q = diag([300 300 300 2.5 2.5 300 .001 .001 .001 .001 .001 5])
+        %Qf = diag([300 300 300 2.5 2.5 300 .001 .001 .001 .001 .001 5])
+        Q = diag([100 100 1000000 2.5 2.5 .001 .001 .001 .001 .001 .001 .001])
+        Qf = diag([100 100 1000000 10000 10000 .001 .001 .001 .001 .001 .001 .001])
         R = eye(7)
-        
+
     end
     
     properties
@@ -14,16 +16,15 @@ classdef LQRSimulator
     end
     
     methods
-        
         % get the ideal trajectory and velocity for the object
         function [ideal_xtraj, ideal_utraj] = get_ideal_traj(obj, initial_state)
             % extract the pitch and the roll from the initial position
-            pitch = initial_state(TrajectorySimulator.pitch_index);
-            roll = initial_state(TrajectorySimulator.roll_index);
-            
+            pitch = initial_state(TrajectoryQueryManager.pitch_index);
+            roll = initial_state(TrajectoryQueryManager.roll_index);
+
             % determine the file that most closely matches the pitch and
             % roll
-            traj_file = TrajectorySimulator.get_traj_file(pitch, roll);
+            traj_file = TrajectoryQueryManager.get_traj_file(pitch, roll);
             
             % load the ideal_trajectory variable from the traj_file
             load(traj_file);
@@ -38,7 +39,8 @@ classdef LQRSimulator
             ideal_utraj = ideal_utraj.setOutputFrame(obj.model.getInputFrame);
 
             % run tvlqr to get the controller
-            [controller, ~] = tvlqr(obj.model,ideal_xtraj,ideal_utraj,obj.Q,obj.R,obj.Qf);
+            options.angle_flag = [0 0 0 1 1 1 0 0 0 0 0 0]';
+            [controller,~] = tvlqr(obj.model,ideal_xtraj,ideal_utraj,obj.Q,obj.R,obj.Qf,options);
 
             % set the output frame as the input frame of the model
             controller = controller.setOutputFrame(obj.model.getInputFrame);
@@ -72,8 +74,7 @@ classdef LQRSimulator
             system = obj.get_system(ideal_xtraj, ideal_utraj);
 
             % simulate the system for the specified amount of time
-            traj_breaks = ideal_xtraj.getBreaks();
-            total_time = traj_breaks(end);
+            total_time = ideal_utraj.tspan(2);
 
             systraj = obj.simulate_system(system, initial_state, total_time);
             

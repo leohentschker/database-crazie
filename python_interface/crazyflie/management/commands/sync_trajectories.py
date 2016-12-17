@@ -11,13 +11,18 @@ class Command(BaseCommand):
 
     seen_trajectories = set()
 
-    def extract_pitch_roll_velocity(self, trajectory_file):
+    @classmethod
+    def extract_pitch_roll_velocity(cls, trajectory_file):
 
         # strip out the file extension
-        trajectory_file = trajectory_file.strip(".mat")
+        trajectory_file = trajectory_file.strip(".mat") \
+            .strip("/matlab/solved_trajectories/")
 
         # extract the three values
-        pitch_str, roll_str, u0 = trajectory_file.split("%")
+        try:
+            pitch_str, roll_str, u0 = trajectory_file.split("%")
+        except:
+            raise BaseException("Unexpected file descriptor %s" % trajectory_file)
 
         # convert the valeus to the correct types
         pitch = float(pitch_str)
@@ -25,11 +30,13 @@ class Command(BaseCommand):
 
         return pitch, roll, u0
 
-    def upload_trajectory(self, trajectory_file):
-        """ Takes in a trajectory file and uploads it to the database
+    @classmethod
+    def upload_trajectory(cls, trajectory_file):
+        """
+        Takes in a trajectory file and uploads it to the database
         """
         # extract the attributes from the file name
-        pitch, roll, u0 = self.extract_pitch_roll_velocity(
+        pitch, roll, u0 = cls.extract_pitch_roll_velocity(
             trajectory_file)
 
         # get or create a database object with those attributes

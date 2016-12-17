@@ -76,13 +76,13 @@ WSGI_APPLICATION = 'crazyflie.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
-    'local': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'trajectory_db',
-        'HOST': 'localhost',
-        'USER': 'trajectory_user',
-        'PASSWORD': 'cs182'
-    },
+    # 'local': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'trajectory_db',
+    #     'HOST': 'localhost',
+    #     'USER': 'trajectory_user',
+    #     'PASSWORD': 'cs182'
+    # },
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'prod_db',

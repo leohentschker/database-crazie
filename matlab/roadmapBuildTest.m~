@@ -1,0 +1,24 @@
+roadmapBuilder = RoadmapBuilder();
+runner = CrazyflieRunner();
+
+% ensure we are generating random inputs correctly
+for i = 1:10
+    [pitch, roll, ~] = roadmapBuilder.generate_random_inputs();
+    assert (pitch < RoadmapBuilder.max_pitch);
+    assert (pitch > RoadmapBuilder.min_pitch);
+    assert (roll > RoadmapBuilder.min_roll);
+    assert (roll < RoadmapBuilder.max_roll);
+end
+
+% move on to testing the Crazyflie Runner
+initial_state = runner.get_initial_state(pitch, roll);
+assert(initial_state(CrazyflieRunner.state_pitch_index) == pitch);
+assert(initial_state(CrazyflieRunner.state_roll_index) == roll);
+
+runner.initial_state = initial_state;
+
+final_state = runner.get_final_state();
+assert(final_state(CrazyflieRunner.state_roll_index) == 0);
+assert(final_state(CrazyflieRunner.state_pitch_index) == 0);
+
+runner =

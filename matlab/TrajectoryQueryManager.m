@@ -17,7 +17,6 @@ classdef TrajectoryQueryManager
             % run the python script to get the file
             command = ['/usr/local/bin/python ../python_interface/manage.py find_closest_trajectory --pitch ', num2str(pitch), ' --roll ', num2str(roll)];
             [~, traj_file] = system(command);
-            
             % strip the trailing newline
             traj_file = traj_file(1: length(traj_file) - 1);
 
@@ -64,7 +63,17 @@ classdef TrajectoryQueryManager
             % determine the x trajectory with the initial position and
             % velocity trajectory
             xtraj = obj.simulateTrajectory(utraj, initialState);
+
+        end
+        
+        function visualizeTrajectory(obj, xtraj)
+            % create a visualizer to look at the trajectory
+            vis = obj.r.constructVisualizer();
             
+            xtraj = xtraj.setOutputFrame(obj.r.getStateFrame);
+
+            % playback the x trajectory, including a slider
+            vis.playback(xtraj, struct('slider', true));
         end
 
     end
